@@ -66,22 +66,53 @@ else:
         return results
 
     def display_results(analyzed_results):
-        st.subheader("📊 分析結果 (色分け)")
-    
-        # 凡例表示
-        cols = st.columns(5)
-        for idx, (cat, col) in enumerate(COLORS.items()):
-            html_legend = f'<div style="background-color:{col}; padding:5px; text-align:center; border-radius:4px; font-weight:bold; color:black;">{cat}</div>'
-            cols[idx].markdown(html_legend, unsafe_allow_html=True)
-    
-        st.write("") # スペース
-    
-        # 本文表示
-        for line, category in analyzed_results:
-            color = COLORS.get(category, "#ffffff")
+    st.subheader("📊 分析結果 (手動で変更可能)")
+
+    # 凡例表示
+    cols = st.columns(5)
+    for idx, (cat, col) in enumerate(COLORS.items()):
+        html_legend = f'<div style="background-color:{col}; padding:5px; text-align:center; border-radius:4px; font-weight:bold; color:black;">{cat}</div>'
+        cols[idx].markdown(html_legend, unsafe_allow_html=True)
+
+    st.write("") # スペース
+
+    # 新しい分析が行われた場合のみ、編集用データを上書きする
+    if analyzed_results:
+        if "current_raw_results" not in st.session_state or st.session_state.current_raw_results != analyzed_results:
+            st.session_state.current_raw_results = analyzed_results
+            st.session_state.editable_results = list(analyzed_results)
+
+    # 記憶ポケットにデータがなければ何もしない
+    if "editable_results" not in st.session_state:
+        return
+
+    # 記憶しているデータを使って画面に表示
+    for idx, (line, category) in enumerate(st.session_state.editable_results):
+        c1, c2 = st.columns([1, 4])
+        
+        with c1:
+            options = list(COLORS.keys())
+            default_index = options.index(category) if category in options else 4
+            
+            # プルダウンメニュー
+            new_cat = st.selectbox(
+                f"分類選択_{idx}",
+                options,
+                index=default_index,
+                label_visibility="collapsed",
+                key=f"select_{idx}"
+            )
+            
+            # 手動で変更されたら、記憶を塗り替えて再描画する
+            if new_cat != category:
+                st.session_state.editable_results[idx] = (line, new_cat)
+                st.rerun()
+
+        with c2:
+            color = COLORS.get(new_cat, "#ffffff")
             html_content = f"""
-            <div style="background-color:{color}; padding:10px; margin-bottom:8px; border-radius:4px; color:black;">
-                <span style="font-size:0.8em; background:rgba(0,0,0,0.1); padding:2px 6px; border-radius:3px; margin-right:5px; font-weight:bold;">{category}</span>{line}
+            <div style="background-color:{color}; padding:10px; margin-bottom:8px; border-radius:4px; color:black; min-height:43px;">
+                {line}
             </div>
             """
             st.markdown(html_content, unsafe_allow_html=True)
