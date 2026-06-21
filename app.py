@@ -60,28 +60,27 @@ else:
         return results
 
     def display_results(analyzed_results):
-    st.subheader("📊 分析結果 (色分け) ")
+    st.subheader("📊 分析結果 (色分け)")
 
     # 凡例表示
     cols = st.columns(5)
     for idx, (cat, col) in enumerate(COLORS.items()):
-        # HTMLを有効にするために「, unsafe_allow_html=True」を最後に追加しました
         cols[idx].markdown(
             f'<div style="background-color:{col}; padding:5px; text-align:center; border-radius:4px; font-weight:bold; color:black;">{cat}</div>', 
             unsafe_allow_html=True
         )
 
     st.write("") # スペース
-        
-        # 本文表示
-        for line, category in analyzed_results:
-            color = COLORS.get(category, "#ffffff")
-            st.markdown(f"""
-            <div style="background-color:{color}; padding:10px; margin-bottom:8px; border-radius:4px; border-left:5px solid {color}; color:#333;">
-                <span style="font-size:0.8em; background:rgba(0,0,0,0.1); padding:2px 6px; border-radius:3px; margin-right:10px; font-weight:bold;">{category}</span>{line}
-            </div>
-            """, unsafe_allow_with_html=True)
 
+    # 本文表示
+    for line, category in analyzed_results:
+        color = COLORS.get(category, "#ffffff")
+        st.markdown(
+            f'<div style="background-color:{color}; padding:10px; margin-bottom:8px; border-radius:4px; color:black;">'
+            f'<span style="font-size:0.8em; background:rgba(0,0,0,0.1); padding:2px 6px; border-radius:3px; margin-right:5px; font-weight:bold;">{category}</span>{line}'
+            f'</div>',
+            unsafe_allow_html=True
+        )
     # --- タブ1: 音声から文字起こし ---
 with tab1:
     uploaded_file = st.file_uploader("ボタイムなどの音声ファイルをアップロード (mp3, wav, m4aなど) ", type=["mp3", "wav", "m4a", "mp4"])
