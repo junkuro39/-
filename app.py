@@ -76,18 +76,23 @@ else:
     
         st.write("") # スペース
     
-        # 一時的な記憶ポケット（セッション）を辞書形式で確実に用意・初期化
-        if "editable_results" not in st.session_state or not isinstance(st.session_state.editable_results, dict):
-            st.session_state.editable_results = {}
+        # セッション内に「辞書型」の保存ポケットを確実に用意する
+        if "editable_dict" not in st.session_state:
+            st.session_state.editable_dict = {}
     
-        # 画面にセリフとプルダウンを表示
+        # AIから送られてきたデータをループ処理
         for idx, (line, category) in enumerate(analyzed_results):
             c1, c2 = st.columns([1, 4])
             
             with c1:
                 options = list(COLORS.keys())
-                # ユーザーが変更した記録があればそれを使い、なければAIの判定を使う
-                saved_cat = st.session_state.editable_results.get(idx, category)
+                
+                # 過去に手動変更していればそれを最優先し、なければAIの判定を使う
+                if idx in st.session_state.editable_dict:
+                    saved_cat = st.session_state.editable_dict[idx]
+                else:
+                    saved_cat = category
+                    
                 default_index = options.index(saved_cat) if saved_cat in options else 4
                 
                 # 手動変更用のプルダウン
@@ -99,9 +104,9 @@ else:
                     key=f"select_{idx}"
                 )
                 
-                # 変更されたらポケットに記憶して再描画
+                # ユーザーがプルダウンを切り替えた瞬間だけポケットを更新して再描画
                 if new_cat != saved_cat:
-                    st.session_state.editable_results[idx] = new_cat
+                    st.session_state.editable_dict[idx] = new_cat
                     st.rerun()
     
             with c2:
