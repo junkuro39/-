@@ -66,52 +66,52 @@ else:
         return results
 
     def display_results(analyzed_results):
-    st.subheader("📊 分析結果 (手動で変更可能)")
-
-    # 凡例表示
-    cols = st.columns(5)
-    for idx, (cat, col) in enumerate(COLORS.items()):
-        html_legend = f'<div style="background-color:{col}; padding:5px; text-align:center; border-radius:4px; font-weight:bold; color:black;">{cat}</div>'
-        cols[idx].markdown(html_legend, unsafe_allow_html=True)
-
-    st.write("") # スペース
-
-    # 一時的な記憶ポケット（セッション）の準備
-    if "editable_results" not in st.session_state:
-        st.session_state.editable_results = {}
-
-    # 画面にセリフとプルダウンを表示
-    for idx, (line, category) in enumerate(analyzed_results):
-        c1, c2 = st.columns([1, 4])
-        
-        with c1:
-            options = list(COLORS.keys())
-            # ユーザーが変更した記録があればそれを使い、なければAIの判定を使う
-            saved_cat = st.session_state.editable_results.get(idx, category)
-            default_index = options.index(saved_cat) if saved_cat in options else 4
+        st.subheader("📊 分析結果 (手動で変更可能)")
+    
+        # 凡例表示
+        cols = st.columns(5)
+        for idx, (cat, col) in enumerate(COLORS.items()):
+            html_legend = f'<div style="background-color:{col}; padding:5px; text-align:center; border-radius:4px; font-weight:bold; color:black;">{cat}</div>'
+            cols[idx].markdown(html_legend, unsafe_allow_html=True)
+    
+        st.write("") # スペース
+    
+        # 一時的な記憶ポケット（セッション）の準備
+        if "editable_results" not in st.session_state:
+            st.session_state.editable_results = {}
+    
+        # 画面にセリフとプルダウンを表示
+        for idx, (line, category) in enumerate(analyzed_results):
+            c1, c2 = st.columns([1, 4])
             
-            # 手動変更用のプルダウン
-            new_cat = st.selectbox(
-                f"分類選択_{idx}",
-                options,
-                index=default_index,
-                label_visibility="collapsed",
-                key=f"select_{idx}"
-            )
-            
-            # 変更されたらポケットに記憶して再描画
-            if new_cat != saved_cat:
-                st.session_state.editable_results[idx] = new_cat
-                st.rerun()
-
-        with c2:
-            color = COLORS.get(new_cat, "#ffffff")
-            html_content = f"""
-            <div style="background-color:{color}; padding:10px; margin-bottom:8px; border-radius:4px; color:black; min-height:43px;">
-                {line}
-            </div>
-            """
-            st.markdown(html_content, unsafe_allow_html=True)
+            with c1:
+                options = list(COLORS.keys())
+                # ユーザーが変更した記録があればそれを使い、なければAIの判定を使う
+                saved_cat = st.session_state.editable_results.get(idx, category)
+                default_index = options.index(saved_cat) if saved_cat in options else 4
+                
+                # 手動変更用のプルダウン
+                new_cat = st.selectbox(
+                    f"分類選択_{idx}",
+                    options,
+                    index=default_index,
+                    label_visibility="collapsed",
+                    key=f"select_{idx}"
+                )
+                
+                # 変更されたらポケットに記憶して再描画
+                if new_cat != saved_cat:
+                    st.session_state.editable_results[idx] = new_cat
+                    st.rerun()
+    
+            with c2:
+                color = COLORS.get(new_cat, "#ffffff")
+                html_content = f"""
+                <div style="background-color:{color}; padding:10px; margin-bottom:8px; border-radius:4px; color:black; min-height:43px;">
+                    {line}
+                </div>
+                """
+                st.markdown(html_content, unsafe_allow_html=True)
     # --- タブ1: 音声から文字起こし ---
 with tab1:
     uploaded_file = st.file_uploader("ボタイムなどの音声ファイルをアップロード (mp3, wav, m4aなど) ", type=["mp3", "wav", "m4a", "mp4"])
