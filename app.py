@@ -80,15 +80,18 @@ else:
 
     # --- タブ1: 音声から文字起こし ---
     with tab1:
-        uploaded_file = st.file_uploader("ボイスメモなどの音声ファイルをアップロード（mp3, wav, m4aなど）", type=["mp3", "wav", "m4a", "webm"])
+        uploaded_file = st.file_uploader("ボイスメモなどの音声ファイルをアップロード (mp3, wav, m4aなど) ", type=["mp3", "wav", "m4a", "mp4"])
         if uploaded_file is not None:
             if st.button("① 音声を文字起こしする"):
                 with st.spinner("AIが音声をテキストに変換しています..."):
                     try:
-                        # OpenAI Whisper APIで文字起こし
+                        # 音声のデータを安全に読み込みます
+                        audio_bytes = uploaded_file.read()
+                        
+                        # OpenAI Whisper APIで文字起こし（データとファイル名を安全に渡す書き方）
                         transcript = client.audio.transcriptions.create(
-                            model="whisper-1", 
-                            file=uploaded_file
+                            model="whisper-1",
+                            file=(uploaded_file.name, audio_bytes)
                         )
                         st.session_state['transcript_text'] = transcript.text
                         st.success("文字起こしが完了しました！下のテキストを確認・編集してください。")
