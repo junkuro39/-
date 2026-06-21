@@ -76,8 +76,8 @@ else:
     
         st.write("") # スペース
     
-        # 一時的な記憶ポケット（セッション）の準備
-        if "editable_results" not in st.session_state:
+        # 一時的な記憶ポケット（セッション）を辞書形式で確実に用意・初期化
+        if "editable_results" not in st.session_state or not isinstance(st.session_state.editable_results, dict):
             st.session_state.editable_results = {}
     
         # 画面にセリフとプルダウンを表示
