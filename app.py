@@ -60,14 +60,18 @@ else:
         return results
 
     def display_results(analyzed_results):
-        st.subheader("📊 分析結果（色分け）")
-        
-        # 凡例表示
-        cols = st.columns(5)
-        for idx, (cat, col) in enumerate(COLORS.items()):
-            cols[idx].markdown(f'<div style="background-color:{col}; padding:5px; text-align:center; border-radius:4px; font-weight:bold; font-size:12px;">{cat}</div>', unsafe_allow_with_html=True)
-        
-        st.write("") # スペース
+    st.subheader("📊 分析結果 (色分け) ")
+
+    # 凡例表示
+    cols = st.columns(5)
+    for idx, (cat, col) in enumerate(COLORS.items()):
+        # HTMLを有効にするために「, unsafe_allow_html=True」を最後に追加しました
+        cols[idx].markdown(
+            f'<div style="background-color:{col}; padding:5px; text-align:center; border-radius:4px; font-weight:bold; color:black;">{cat}</div>', 
+            unsafe_allow_html=True
+        )
+
+    st.write("") # スペース
         
         # 本文表示
         for line, category in analyzed_results:
