@@ -149,12 +149,12 @@ if 'transcript_text' in st.session_state:
         res = analyze_text(edited_text)
         display_results(res)
 
-    # --- タブ2: テキストから直接分析 ---
-    with tab2:
-        user_input = st.text_area("すでに文字起こしされたテキストをここに貼り付けてください（1行1発言）", height=300)
-        if st.button("テキストを分析する"):
-            if user_input:
-                res = analyze_text(user_input)
+   # --- タブ2: テキストから直接分析 ---
+with tab2:
+    user_input = st.text_area("すでに文字起こしされたテキストをここに貼り付けてください（1行1発言）", height=300)
+    if st.button("テキストを分析する"):
+        if user_input:
+            res = analyze_text(user_input)
             # 新しい分析結果が来たら、手動変更用の記憶ポケットをリセットして新しく保存する
             st.session_state.current_raw_results = res
             st.session_state.editable_dict = {}
