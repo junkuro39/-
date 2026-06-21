@@ -155,6 +155,12 @@ if 'transcript_text' in st.session_state:
         if st.button("テキストを分析する"):
             if user_input:
                 res = analyze_text(user_input)
-                display_results(res)
-            else:
-                st.warning("テキストを入力してください。")
+            # 新しい分析結果が来たら、手動変更用の記憶ポケットをリセットして新しく保存する
+            st.session_state.current_raw_results = res
+            st.session_state.editable_dict = {}
+        else:
+            st.warning("テキストを入力してください。")
+
+# --- 分析画面の表示処理（一番左の壁にくっつけます） ---
+if "current_raw_results" in st.session_state:
+    display_results(st.session_state.current_raw_results)
