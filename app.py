@@ -60,25 +60,25 @@ else:
         return results
 
     def display_results(analyzed_results):
-    st.subheader("📊 分析結果 (色分け)")
-
-    # 凡例表示
-    cols = st.columns(5)
-    for idx, (cat, col) in enumerate(COLORS.items()):
-        html_legend = f'<div style="background-color:{col}; padding:5px; text-align:center; border-radius:4px; font-weight:bold; color:black;">{cat}</div>'
-        cols[idx].markdown(html_legend, unsafe_allow_html=True)
-
-    st.write("") # スペース
-
-    # 本文表示
-    for line, category in analyzed_results:
-        color = COLORS.get(category, "#ffffff")
-        html_content = f"""
-        <div style="background-color:{color}; padding:10px; margin-bottom:8px; border-radius:4px; color:black;">
-            <span style="font-size:0.8em; background:rgba(0,0,0,0.1); padding:2px 6px; border-radius:3px; margin-right:5px; font-weight:bold;">{category}</span>{line}
-        </div>
-        """
-        st.markdown(html_content, unsafe_allow_html=True)
+        st.subheader("📊 分析結果 (色分け)")
+    
+        # 凡例表示
+        cols = st.columns(5)
+        for idx, (cat, col) in enumerate(COLORS.items()):
+            html_legend = f'<div style="background-color:{col}; padding:5px; text-align:center; border-radius:4px; font-weight:bold; color:black;">{cat}</div>'
+            cols[idx].markdown(html_legend, unsafe_allow_html=True)
+    
+        st.write("") # スペース
+    
+        # 本文表示
+        for line, category in analyzed_results:
+            color = COLORS.get(category, "#ffffff")
+            html_content = f"""
+            <div style="background-color:{color}; padding:10px; margin-bottom:8px; border-radius:4px; color:black;">
+                <span style="font-size:0.8em; background:rgba(0,0,0,0.1); padding:2px 6px; border-radius:3px; margin-right:5px; font-weight:bold;">{category}</span>{line}
+            </div>
+            """
+            st.markdown(html_content, unsafe_allow_html=True)
     # --- タブ1: 音声から文字起こし ---
 with tab1:
     uploaded_file = st.file_uploader("ボタイムなどの音声ファイルをアップロード (mp3, wav, m4aなど) ", type=["mp3", "wav", "m4a", "mp4"])
