@@ -60,7 +60,7 @@ else:
         return results
 
     def display_results(analyzed_results):
-        st.subheader("📊 分析結果 (色分け)")
+    st.subheader("📊 分析結果 (色分け)")
 
     # 凡例表示
     cols = st.columns(5)
@@ -73,7 +73,7 @@ else:
     st.write("") # スペース
 
     # 本文表示
-        for line, category in analyzed_results:
+    for line, category in analyzed_results:
         color = COLORS.get(category, "#ffffff")
         st.markdown(
             f'<div style="background-color:{color}; padding:10px; margin-bottom:8px; border-radius:4px; color:black;">'
