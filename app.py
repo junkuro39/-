@@ -22,8 +22,8 @@ else:
     # タブの作成（音声から文字起こしするか、直接テキストを貼るか）
     tab1, tab2 = st.tabs(["🎵 音声ファイルから分析", "📝 テキストから直接分析"])
 
-    # 色の定義とCSSの埋め込み
-    COLORS = {"指示": "#ffcccb", "提案": "#ffe4b5", "質問": "#e0ffff", "委譲": "#d3ffce", "sound": "#ffffff", "その他": "#ffffff"}
+    # 色の定義
+    COLORS = {"指示": "#ffcccb", "提案": "#ffe4b5", "質問": "#e0ffff", "委譲": "#d3ffce", "その他": "#ffffff"}
     
     # 共通の分析用プロンプト
     system_prompt = """
@@ -66,10 +66,9 @@ else:
     def display_results(analyzed_results):
         st.subheader("📊 分析結果 (手動で変更可能)")
     
-        # 凡例表示
+        # 凡例表示 (5つの分類をきれいに並べます)
         cols = st.columns(5)
         for idx, (cat, col) in enumerate(COLORS.items()):
-            if cat == "sound": continue
             html_legend = f'<div style="background-color:{col}; padding:5px; text-align:center; border-radius:4px; font-weight:bold; color:black;">{cat}</div>'
             cols[idx].markdown(html_legend, unsafe_allow_html=True)
     
@@ -84,7 +83,7 @@ else:
             c1, c2 = st.columns([1, 4])
             
             with c1:
-                options = [k for k in COLORS.keys() if k != "sound"]
+                options = list(COLORS.keys())
                 
                 # 過去に手動変更していればそれを最優先し、なければAIの判定を使う
                 if idx in st.session_state.editable_dict:
@@ -119,11 +118,10 @@ else:
 
     # --- タブ1: 音声から文字起こし ---
     with tab1:
-        # 新しい音声ファイルがアップロードされたら、古いセッション情報を消去する仕組み
         uploaded_file = st.file_uploader("ボタイムなどの音声ファイルをアップロード (mp3, wav, m4aなど) ", type=["mp3", "wav", "m4a", "mp4"])
         
         if uploaded_file is not None:
-            # 最後にアップロードしたファイル名と違う場合、過去の記憶をリセット
+            # 新しい音声ファイルに切り替わったら自動リセットする仕組み
             if "last_uploaded_filename" not in st.session_state or st.session_state.last_uploaded_filename != uploaded_file.name:
                 st.session_state.last_uploaded_filename = uploaded_file.name
                 if 'transcript_text' in st.session_state:
