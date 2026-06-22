@@ -8,8 +8,6 @@ st.set_page_config(page_title="コーチング発言分析アプリ", layout="ce
 st.title("🎙️ コーチング逐語分析アプリ")
 st.write("音声ファイルのアップロード、またはテキスト入力から「指示・提案・質問・委譲」を色分け分析します。")
 
-# 共通のAPIキーを設定（管理者側で設定、または利用者に最初に入力してもらう）
-# ※セキュリティのため、本来は環境変数やStreamlitのSecrets機能を使うのが安全です。
 # Secretsから自動的にAPIキーを読み込む、なければサイドバーから入力
 if "OPENAI_API_KEY" in st.secrets and st.secrets["OPENAI_API_KEY"]:
     API_KEY = st.secrets["OPENAI_API_KEY"]
@@ -29,21 +27,21 @@ else:
     
     # 共通の分析用プロンプト
     system_prompt = """
-あなたは優秀なコーチングアナリストです。与えられたコーチの発言を、以下の5つのいずれかに厳密に分類してください。
+    あなたは優秀なコーチングアナリストです。与えられたコーチの発言を、以下の5つのいずれかに厳密に分類してください。
 
-1. 指示 (Command / Tell): クライアントに次のアクションを促す発言。強い命令ではなく、「〜してください」「〜をやってみましょう」という日常的な促しで十分です。
+    1. 指示 (Command / Tell): クライアントに次のアクションを促す発言。強い命令ではなく、「〜してください」「〜をやってみましょう」という日常的な促しで十分です。
 
-2. 提案 (Suggestion / Sell): アイデアや選択肢を提示し、クライアントに働きかける発言。「〜をやってみますか？」「〜という方法もありますがどうですか？」というニュアンスです。
+    2. 提案 (Suggestion / Sell): アイデアや選択肢を提示し、クライアントに働きかける発言。「〜をやってみますか？」「〜という方法もありますがどうですか？」というニュアンスです。
 
-3. 質問 (Question): クライアントへの問いかけ、内省、思考、気づき、または状況の確認を促す発言。
+    3. 質問 (Question): クライアントへの問いかけ、内省、思考、気づき、または状況の確認を促す発言。
 
-4. 委譲 (Delegation): 決定権や今後の行動の主導権を全面的に相手に委ねる発言。「まかせるのでやってみてください」「あなたのやり方で進めてみてください」といったニュアンスです。
+    4. 委譲 (Delegation): 決定権や今後の行動の主導権を全面的に相手に委ねる発言。「まかせるのでやってみてください」「あなたのやり方で進めてみてください」といったニュアンスです。
 
-5. その他 (Other): 挨拶、解説・説明、相槌、セッションの進行管理など、上記のいずれにも該当しないもの。
+    5. その他 (Other): 挨拶、解説・説明、相槌、セッションの進行管理など、上記のいずれにも該当しないもの。
 
-出力は必ず以下のJSONフォーマットのみにしてください。
-{"category": "分類名"}
-"""
+    出力は必ず以下のJSONフォーマットのみにしてください。
+    {"category": "分類名"}
+    """
 
     def analyze_text(text_str):
         lines = [line.strip() for line in text_str.split('\n') if line.strip()]
@@ -117,50 +115,48 @@ else:
                 </div>
                 """
                 st.markdown(html_content, unsafe_allow_html=True)
+
     # --- タブ1: 音声から文字起こし ---
-with tab1:
-    uploaded_file = st.file_uploader("ボタイムなどの音声ファイルをアップロード (mp3, wav, m4aなど) ", type=["mp3", "wav", "m4a", "mp4"])
-    if uploaded_file is not None:
-        if st.button("① 音声を文字起こしする"):
-            with st.spinner("AIが音声をテキストに変換しています..."):
-                try:
-                    # 音声のデータを安全に読み込みます
-                    audio_bytes = uploaded_file.read()
-                    
-                    # OpenAI Whisper APIで文字起こし（※.nameの後に半角カンマを入れました）
-                    transcript = client.audio.transcriptions.create(
-                        model="whisper-1",
-                        file=(uploaded_file.name, audio_bytes)
-                    )
-                    st.session_state['transcript_text'] = transcript.text
-                    st.success("文字起こしが完了しました！下のテキストを確認・編集してください。")
-                except Exception as e:
-                    st.error(f"文字起こしエラー: {e}")
+    with tab1:
+        uploaded_file = st.file_uploader("ボタイムなどの音声ファイルをアップロード (mp3, wav, m4aなど) ", type=["mp3", "wav", "m4a", "mp4"])
+        if uploaded_file is not None:
+            if st.button("① 音声を文字起こしする"):
+                with st.spinner("AIが音声をテキストに変換しています..."):
+                    try:
+                        audio_bytes = uploaded_file.read()
+                        transcript = client.audio.transcriptions.create(
+                            model="whisper-1",
+                            file=(uploaded_file.name, audio_bytes)
+                        )
+                        st.session_state['transcript_text'] = transcript.text
+                        st.success("文字起こしが完了しました！下のテキストを確認・編集してください。")
+                    except Exception as e:
+                        st.error(f"文字起こしエラー: {e}")
 
-           # 文字起こし結果の編集エリア
-if 'transcript_text' in st.session_state:
-    edited_text = st.text_area(
-        "文字起こしされたテキスト (改行ごとに1発言として分析されます) ", 
-        value=st.session_state['transcript_text'], 
-        key="edited_transcript_text", # ←これでボタンを押してもデータが消えなくなります
-        height=300
-    )
-    if st.button("② このテキストを分析する"):
-        res = analyze_text(edited_text)
-        display_results(res)
+        # 文字起こし結果の編集エリア
+        if 'transcript_text' in st.session_state:
+            edited_text = st.text_area(
+                "文字起こしされたテキスト (改行ごとに1発言として分析されます) ", 
+                value=st.session_state['transcript_text'], 
+                key="edited_transcript_text",
+                height=300
+            )
+            if st.button("② このテキストを分析する"):
+                res = analyze_text(edited_text)
+                st.session_state.current_raw_results = res
+                st.session_state.editable_dict = {}
 
-   # --- タブ2: テキストから直接分析 ---
-with tab2:
-    user_input = st.text_area("すでに文字起こしされたテキストをここに貼り付けてください（1行1発言）", height=300)
-    if st.button("テキストを分析する"):
-        if user_input:
-            res = analyze_text(user_input)
-            # 新しい分析結果が来たら、手動変更用の記憶ポケットをリセットして新しく保存する
-            st.session_state.current_raw_results = res
-            st.session_state.editable_dict = {}
-        else:
-            st.warning("テキストを入力してください。")
+    # --- タブ2: テキストから直接分析 ---
+    with tab2:
+        user_input = st.text_area("すでに文字起こしされたテキストをここに貼り付けてください（1行1発言）", height=300)
+        if st.button("テキストを分析する"):
+            if user_input:
+                res = analyze_text(user_input)
+                st.session_state.current_raw_results = res
+                st.session_state.editable_dict = {}
+            else:
+                st.warning("テキストを入力してください。")
 
-# --- 分析画面の表示処理（一番左の壁にくっつけます） ---
-if "current_raw_results" in st.session_state:
-    display_results(st.session_state.current_raw_results)
+    # --- 分析画面の表示処理 ---
+    if "current_raw_results" in st.session_state:
+        display_results(st.session_state.current_raw_results)
